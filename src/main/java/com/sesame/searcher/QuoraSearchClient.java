@@ -24,13 +24,13 @@ public class QuoraSearchClient {
     }
 
     public static void main(String[] args) throws Exception{
-//        try {
-//            Indexer id = new Indexer("/Users/sesame/Downloads/indexpath/");
-//            id.createIndex();
-//            id.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        try {
+            Indexer id = new Indexer("/Users/sesame/Downloads/indexpath/");
+            id.createIndex();
+            id.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         QuoraSearchClient msa = new QuoraSearchClient("/Users/sesame/Downloads/indexpath/");
         msa.connectDB();
@@ -59,7 +59,8 @@ public class QuoraSearchClient {
                     String tid = doc.get(LuceneConstants.FILE_NAME);
                     String result = doc.get(LuceneConstants.CONTENTS);
                     String url = doc.get(LuceneConstants.URL);
-                    writeDataBase(tid, job_id, book_id, url, result, score, start, end);
+                    String question = doc.get(LuceneConstants.QUESTION);
+                    writeDataBase(tid, job_id, book_id, url, question, result, score, start, end);
                     score--;
                 }
                 searcher.close();
@@ -94,19 +95,20 @@ public class QuoraSearchClient {
         return resultSet;
     }
 
-    public void writeDataBase(String tid, long job_id, String book_id, String url, String result,long score, long start, long end) {
+    public void writeDataBase(String tid, long job_id, String book_id, String url, String question, String result,long score, long start, long end) {
         try {
-            preparedStatement = connect.prepareStatement("insert into quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            preparedStatement = connect.prepareStatement("insert into quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, tid);
             preparedStatement.setLong(2,  job_id);
             preparedStatement.setString(3, book_id);
             preparedStatement.setString(4, url);
-            preparedStatement.setString(5, result);
-            preparedStatement.setLong(6, score);
-            preparedStatement.setLong(7, start);
-            preparedStatement.setLong(8, end);
-            preparedStatement.setTimestamp(9, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.setString(5, question);
+            preparedStatement.setString(6, result);
+            preparedStatement.setLong(7, score);
+            preparedStatement.setLong(8, start);
+            preparedStatement.setLong(9, end);
             preparedStatement.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.setTimestamp(11, new Timestamp(System.currentTimeMillis()));
             int success = preparedStatement.executeUpdate();
             System.out.println("Writing into database:"+success);
 

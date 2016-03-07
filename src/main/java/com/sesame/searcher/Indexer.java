@@ -82,7 +82,7 @@ public class Indexer {
                 doc.add(fieldCategory);
 
                 String url = obj.get("url").toString();
-                Field fieldUrl = new Field(LuceneConstants.URL, name, Field.Store.YES, Field.Index.NOT_ANALYZED);
+                Field fieldUrl = new Field(LuceneConstants.URL, url, Field.Store.YES, Field.Index.NOT_ANALYZED);
                 doc.add(fieldUrl);
 
                 writer.addDocument(doc);
