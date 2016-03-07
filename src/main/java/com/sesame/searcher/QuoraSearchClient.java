@@ -4,6 +4,7 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -24,7 +25,7 @@ public class QuoraSearchClient {
 
     public static void main(String[] args) throws Exception{
 //        try {
-//            Indexer id = new Indexer(indexDir);
+//            Indexer id = new Indexer("/Users/sesame/Downloads/indexpath/");
 //            id.createIndex();
 //            id.close();
 //        } catch (IOException e) {
