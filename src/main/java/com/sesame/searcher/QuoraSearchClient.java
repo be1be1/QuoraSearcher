@@ -4,7 +4,6 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 
-import java.io.IOException;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -24,17 +23,18 @@ public class QuoraSearchClient {
     }
 
     public static void main(String[] args) throws Exception{
-        try {
-            Indexer id = new Indexer("/Users/sesame/Downloads/indexpath/");
-            id.createIndex();
-            id.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            Indexer id = new Indexer("/Users/sesame/Downloads/indexpath/");
+//            id.createIndex();
+//            id.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         QuoraSearchClient msa = new QuoraSearchClient("/Users/sesame/Downloads/indexpath/");
         msa.connectDB();
         ResultSet resultSet = msa.readDataBase("7f6fe8e8-cf4d-4b7f-bcc7-8e8515666107");
+//        msa.dealObject(resultSet);
         msa.search(resultSet);
         msa.close(resultSet);
     }
@@ -44,6 +44,7 @@ public class QuoraSearchClient {
             while (resultSet.next()) {
                 long job_id = resultSet.getLong("job_id");
                 String book_id = resultSet.getString("book_id");
+                long page_id = resultSet.getLong("page_id");
                 long start = resultSet.getLong("start");
                 long end = resultSet.getLong("end");
 
@@ -57,10 +58,11 @@ public class QuoraSearchClient {
                 for (ScoreDoc scoreDoc : hits.scoreDocs) {
                     Document doc = searcher.getDocument(scoreDoc);
                     String tid = doc.get(LuceneConstants.FILE_NAME);
+                    System.out.println("Doc is:"+tid);
                     String result = doc.get(LuceneConstants.CONTENTS);
                     String url = doc.get(LuceneConstants.URL);
                     String question = doc.get(LuceneConstants.QUESTION);
-                    writeDataBase(tid, job_id, book_id, url, question, result, score, start, end);
+                    writeDataBase(tid, job_id, book_id, page_id, url, question, result, score, start, end);
                     score--;
                 }
                 searcher.close();
@@ -95,20 +97,21 @@ public class QuoraSearchClient {
         return resultSet;
     }
 
-    public void writeDataBase(String tid, long job_id, String book_id, String url, String question, String result,long score, long start, long end) {
+    public void writeDataBase(String tid, long job_id, String book_id, long page_id, String url, String question, String result, long score, long start, long end) {
         try {
-            preparedStatement = connect.prepareStatement("insert into quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            preparedStatement = connect.prepareStatement("insert into quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, tid);
             preparedStatement.setLong(2,  job_id);
             preparedStatement.setString(3, book_id);
-            preparedStatement.setString(4, url);
-            preparedStatement.setString(5, question);
-            preparedStatement.setString(6, result);
-            preparedStatement.setLong(7, score);
-            preparedStatement.setLong(8, start);
-            preparedStatement.setLong(9, end);
-            preparedStatement.setTimestamp(10, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.setLong(4, page_id);
+            preparedStatement.setString(5, url);
+            preparedStatement.setString(6, question);
+            preparedStatement.setString(7, result);
+            preparedStatement.setLong(8, score);
+            preparedStatement.setLong(9, start);
+            preparedStatement.setLong(10, end);
             preparedStatement.setTimestamp(11, new Timestamp(System.currentTimeMillis()));
+            preparedStatement.setTimestamp(12, new Timestamp(System.currentTimeMillis()));
             int success = preparedStatement.executeUpdate();
             System.out.println("Writing into database:"+success);
 
@@ -118,6 +121,21 @@ public class QuoraSearchClient {
 
 
     }
+
+//    public List<RecordObject> dealObject(ResultSet resultSet) throws SQLException{
+//        List<RecordObject> listOfObject = new ArrayList<RecordObject>();
+//        while(resultSet.next()) {
+//            long jobId = resultSet.getLong("job_id");
+//            String bookId = resultSet.getString("book_id");
+//            String query = resultSet.getString("query");
+//            long start = resultSet.getLong("start");
+//            long end = resultSet.getLong("end");
+//            RecordObject recordObject = new RecordObject(jobId, bookId, query, start, end);
+//            listOfObject.add(recordObject);
+//        }
+//
+//        return listOfObject;
+//    }
 
     private void close(ResultSet resultSet) {
         try {
