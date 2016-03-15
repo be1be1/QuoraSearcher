@@ -1,9 +1,10 @@
-package com.sesame.searcher;
+package com.readpeer.util.quora;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TopDocs;
 
+import java.io.IOException;
 import java.sql.*;
 import java.util.Arrays;
 import java.util.List;
@@ -33,7 +34,7 @@ public class QuoraSearchClient {
 
         QuoraSearchClient msa = new QuoraSearchClient("/Users/sesame/Downloads/indexpath/");
         msa.connectDB();
-        ResultSet resultSet = msa.readDataBase("7f6fe8e8-cf4d-4b7f-bcc7-8e8515666107");
+        ResultSet resultSet = msa.readDataBase("072708EC67C498D49461AFC4BA27E4D1");
 //        msa.dealObject(resultSet);
         msa.search(resultSet);
         msa.close(resultSet);
@@ -42,19 +43,19 @@ public class QuoraSearchClient {
     public void search(ResultSet resultSet) {
         try {
             while (resultSet.next()) {
-                long job_id = resultSet.getLong("job_id");
-                String book_id = resultSet.getString("book_id");
-                long page_id = resultSet.getLong("page_id");
+                long nodeid = resultSet.getLong("nodeid");
+                String bid = resultSet.getString("bid");
+                long pid = resultSet.getLong("pid");
                 long start = resultSet.getLong("start");
                 long end = resultSet.getLong("end");
 
                 String regExp = "[,\\s]+";
                 searcher = new Searcher(indexDir);
-                String queryStr = resultSet.getString("query").trim().replaceAll("^\\[|\\'|\\]$", "");
+                String queryStr = resultSet.getString("keywords").trim().replaceAll("^\\[|\\'|\\]$", "");
                 List<String> queryTerms = Arrays.asList(queryStr.split(regExp));
                 TopDocs hits = searcher.search(queryTerms);
                 System.out.println(hits.totalHits);
-                long score = 20;
+                long score = 5;
                 for (ScoreDoc scoreDoc : hits.scoreDocs) {
                     Document doc = searcher.getDocument(scoreDoc);
                     String tid = doc.get(LuceneConstants.FILE_NAME);
@@ -62,7 +63,7 @@ public class QuoraSearchClient {
                     String result = doc.get(LuceneConstants.CONTENTS);
                     String url = doc.get(LuceneConstants.URL);
                     String question = doc.get(LuceneConstants.QUESTION);
-                    writeDataBase(tid, job_id, book_id, page_id, url, question, result, score, start, end);
+                    writeDataBase(tid, nodeid, bid, pid, url, question, result, score, start, end);
                     score--;
                 }
                 searcher.close();
@@ -76,7 +77,7 @@ public class QuoraSearchClient {
     public void connectDB() throws Exception{
         // This will load the MySQL driver, each DB has its own driver
         String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-        String DB_URL = "jdbc:mysql://172.29.25.182:3306/tweets_db";
+        String DB_URL = "jdbc:mysql://172.29.27.171:3306/";
         String USER = "readpeer";
         String PASS = "readpeer";
         Class.forName(JDBC_DRIVER);
@@ -87,7 +88,7 @@ public class QuoraSearchClient {
     public ResultSet readDataBase(String book_id) {
         ResultSet resultSet = null;
         try {
-            preparedStatement = connect.prepareStatement("select * from job where book_id = ?");
+            preparedStatement = connect.prepareStatement("select * from ivle.keywords where bid = ?");
             preparedStatement.setString(1, book_id);
             resultSet = preparedStatement.executeQuery();
         } catch (SQLException e) {
@@ -97,21 +98,19 @@ public class QuoraSearchClient {
         return resultSet;
     }
 
-    public void writeDataBase(String tid, long job_id, String book_id, long page_id, String url, String question, String result, long score, long start, long end) {
+    public void writeDataBase(String tid, long nodeid, String bid, long pid, String url, String question, String result, long score, long start, long end) {
         try {
-            preparedStatement = connect.prepareStatement("insert into quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+            preparedStatement = connect.prepareStatement("insert into tweets_db.quorasfull value (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
             preparedStatement.setString(1, tid);
-            preparedStatement.setLong(2,  job_id);
-            preparedStatement.setString(3, book_id);
-            preparedStatement.setLong(4, page_id);
+            preparedStatement.setLong(2,  nodeid);
+            preparedStatement.setString(3, bid);
+            preparedStatement.setLong(4, pid);
             preparedStatement.setString(5, url);
             preparedStatement.setString(6, question);
             preparedStatement.setString(7, result);
             preparedStatement.setLong(8, score);
             preparedStatement.setLong(9, start);
             preparedStatement.setLong(10, end);
-            preparedStatement.setTimestamp(11, new Timestamp(System.currentTimeMillis()));
-            preparedStatement.setTimestamp(12, new Timestamp(System.currentTimeMillis()));
             int success = preparedStatement.executeUpdate();
             System.out.println("Writing into database:"+success);
 

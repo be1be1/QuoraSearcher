@@ -1,4 +1,4 @@
-package com.sesame.searcher;
+package com.readpeer.util.quora;
 
 /**
  * Created by sesame on 3/3/16.

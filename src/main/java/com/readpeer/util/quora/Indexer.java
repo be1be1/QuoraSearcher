@@ -1,4 +1,4 @@
-package com.sesame.searcher;
+package com.readpeer.util.quora;
 
 import com.mongodb.*;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;

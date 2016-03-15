@@ -1,4 +1,4 @@
-package com.sesame.searcher;
+package com.readpeer.util.quora;
 
 /**
  * Created by sesame on 3/3/16.
@@ -9,5 +9,5 @@ public class LuceneConstants {
     public static final String FILE_NAME = "filename";
     public static final String QUESTION = "question";
     public static final String CATEGORY = "category";
-    public static final int MAX_SEARCH = 20;
+    public static final int MAX_SEARCH = 5;
 }
