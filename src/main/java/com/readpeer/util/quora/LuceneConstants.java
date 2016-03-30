@@ -9,5 +9,5 @@ public class LuceneConstants {
     public static final String FILE_NAME = "filename";
     public static final String QUESTION = "question";
     public static final String CATEGORY = "category";
-    public static final int MAX_SEARCH = 5;
+    public static final int MAX_SEARCH = 100;
 }

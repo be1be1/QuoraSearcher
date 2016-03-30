@@ -1,8 +1,5 @@
 package com.readpeer.util.quora;
 
-/**
- * Created by sesame on 3/3/16.
-*/
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
@@ -15,9 +12,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * Created by sesame on 19/2/16.
- */
 public class Searcher {
 
     IndexSearcher indexSearcher;
@@ -34,17 +28,22 @@ public class Searcher {
         BooleanQuery booleanQuery = new BooleanQuery();
 
         for(String searchQuery : searchQuerys) {
-            TermQuery tq1 = new TermQuery(new Term(LuceneConstants.CONTENTS, searchQuery));
-            TermQuery tq2 = new TermQuery(new Term(LuceneConstants.QUESTION, searchQuery));
-            TermQuery tq3 = new TermQuery(new Term(LuceneConstants.CATEGORY, searchQuery));
-            Float weight = 1.0f;
-            tq1.setBoost(weight);
-            tq2.setBoost(weight);
-            tq3.setBoost(weight);
-            booleanQuery.add(tq1, BooleanClause.Occur.SHOULD);
-            booleanQuery.add(tq2, BooleanClause.Occur.SHOULD);
-            booleanQuery.add(tq3, BooleanClause.Occur.SHOULD);
+            String[] words = searchQuery.split(" ");
 
+            PhraseQuery query1 = new PhraseQuery();
+            PhraseQuery query2 = new PhraseQuery();
+            PhraseQuery query3 = new PhraseQuery();
+            for(String word : words) {
+                query1.add(new Term(LuceneConstants.CONTENTS, word));
+                query2.add(new Term(LuceneConstants.QUESTION, word));
+                query3.add(new Term(LuceneConstants.CATEGORY, word));
+                query1.setBoost(1.0f);
+                query2.setBoost(3.0f);
+                query3.setBoost(5.0f);
+            }
+            booleanQuery.add(query1, BooleanClause.Occur.SHOULD);
+            booleanQuery.add(query2, BooleanClause.Occur.SHOULD);
+            booleanQuery.add(query3, BooleanClause.Occur.SHOULD);
         }
 
         TopDocs td = indexSearcher.search(booleanQuery, LuceneConstants.MAX_SEARCH);
