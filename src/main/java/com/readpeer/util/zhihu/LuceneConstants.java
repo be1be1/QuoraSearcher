@@ -1,7 +1,7 @@
-package com.readpeer.util.quora;
+package com.readpeer.util.zhihu;
 
 /**
- * Created by sesame on 3/3/16.
+ * Created by Beibei on 25/4/2016.
  */
 public class LuceneConstants {
     public static final String CONTENTS = "contents";
@@ -11,3 +11,4 @@ public class LuceneConstants {
     public static final String CATEGORY = "category";
     public static final int MAX_SEARCH = 5;
 }
+

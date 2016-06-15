@@ -1,7 +1,7 @@
-package com.readpeer.util.quora;
+package com.readpeer.util.zhihu;
 
 import com.mongodb.*;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig;
@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * Created by sesame on 18/2/16.
+ * Created by Beibei on 25/4/2016.
  */
 public class Indexer {
 
@@ -28,7 +28,7 @@ public class Indexer {
     public Indexer(String indexDirectoryPath) throws IOException {
 
         Directory indexDirectory = NIOFSDirectory.open(new File(indexDirectoryPath));
-        StandardAnalyzer analyzer = new StandardAnalyzer(Version.LUCENE_45);
+        SmartChineseAnalyzer analyzer = new SmartChineseAnalyzer(Version.LUCENE_45);
         IndexWriterConfig config = new IndexWriterConfig(Version.LUCENE_45, analyzer);
 
         LMJelinekMercerSimilarity similarity = new LMJelinekMercerSimilarity(0.01f);
@@ -40,7 +40,7 @@ public class Indexer {
         //Connect Mongodb
         mongo = new MongoClient();
         db = mongo.getDB("qadb");
-        col = db.getCollection("quora");
+        col = db.getCollection("zhihu");
         cursor = col.find();
     }
 
@@ -57,18 +57,18 @@ public class Indexer {
                 String answer = ansObj.get("answer" + j).toString();
                 answerStr.append(answer).append(" ");
             }
-            TextField fieldAnswer = new TextField(LuceneConstants.CONTENTS, answerStr.toString(), Field.Store.YES);
+            TextField fieldAnswer = new TextField(com.readpeer.util.zhihu.LuceneConstants.CONTENTS, answerStr.toString(), Field.Store.YES);
             fieldAnswer.setBoost(4.0f);
             doc.add(fieldAnswer);
 
             //Add question field
             String question = obj.get("question").toString();
-            TextField fieldQuestion= new TextField(LuceneConstants.QUESTION, question, Field.Store.YES);
+            TextField fieldQuestion= new TextField(com.readpeer.util.zhihu.LuceneConstants.QUESTION, question, Field.Store.YES);
             doc.add(fieldQuestion);
 
             //Add name field
             String name = obj.get("_id").toString();
-            StringField fieldName = new StringField(LuceneConstants.FILE_NAME, name, Field.Store.YES);
+            StringField fieldName = new StringField(com.readpeer.util.zhihu.LuceneConstants.FILE_NAME, name, Field.Store.YES);
             doc.add(fieldName);
 
             //Add category field
@@ -78,11 +78,11 @@ public class Indexer {
                 category.replace("\"", "");
                 categoryStr.append(category).append(" ");
             }
-            TextField fieldCategory = new TextField(LuceneConstants.CATEGORY, categoryStr.toString(), Field.Store.YES);
+            TextField fieldCategory = new TextField(com.readpeer.util.zhihu.LuceneConstants.CATEGORY, categoryStr.toString(), Field.Store.YES);
             doc.add(fieldCategory);
 
             String url = obj.get("url").toString();
-            StoredField fieldUrl = new StoredField(LuceneConstants.URL, url);
+            StoredField fieldUrl = new StoredField(com.readpeer.util.zhihu.LuceneConstants.URL, url);
             doc.add(fieldUrl);
 
             writer.addDocument(doc);

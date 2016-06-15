@@ -9,12 +9,15 @@ import java.sql.*;
 import java.util.*;
 import java.util.Date;
 
-public class QuoraSearchClient {
+/**
+ * Created by Beibei on 7/6/2016.
+ */
+public class TweetsSearchClient {
     private Connection connect = null;
     private Searcher searcher = null;
     private Map<String, Long> dupRemover = null;
 
-    public QuoraSearchClient(String indexDir) {
+    public TweetsSearchClient(String indexDir) {
         dupRemover = new HashMap<String, Long>();
         try {
             searcher = new Searcher(indexDir);
@@ -289,3 +292,4 @@ public class QuoraSearchClient {
         }
     }
 }
+
