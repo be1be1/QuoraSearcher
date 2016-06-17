@@ -54,28 +54,34 @@ public class QuoraSearchClient {
                     localScore = localScore + 0.2;
                     globalScore = 1 - localScore;
 
-                    int length = (int) Math.round(queryTerms.size() * localScore);
-                    System.out.println("localScore" + localScore + "Original size:" + queryTerms.size() + " now size:" + length);
-                    List<String> realQueryTerms = queryTerms.subList(0, length);
-                    System.out.println(realQueryTerms);
+                    List<String> globalQueryTerms = new ArrayList<String>();
+                    List<String> localQueryTerms = new ArrayList<String>();
 
-//                List<String> globalQueryTerms = new ArrayList<String>();
-//                List<String> localQueryTerms = new ArrayList<String>();
-//
-//                if(label != null) {
-//                    String[] labelArray = label.split(" ");
-//
-//                    for (int i = 0; i < labelArray.length - 1; i++) {
-//                        if (labelArray[i].toString().equals("1")) {
-//                            globalQueryTerms.add(queryTerms.get(i));
-//                        }
-//
-//                        if (labelArray[i].toString().equals("0")) {
-//
-//                            localQueryTerms.add(queryTerms.get(i));
-//                        }
-//                    }
-//                }
+                    if(label != null) {
+                        String[] labelArray = label.split(" ");
+
+                        for (int k = 0; k < labelArray.length - 1; k++) {
+
+                            if (labelArray[k].toString().equals("1")) {
+                                globalQueryTerms.add(queryTerms.get(k));
+                            }
+
+                            if (labelArray[k].toString().equals("0")) {
+                                localQueryTerms.add(queryTerms.get(k));
+                            }
+                        }
+                    }
+
+                    int localLength = (int) Math.round(localQueryTerms.size() * localScore);
+                    int globalLength = (int) Math.round(globalQueryTerms.size() * globalScore);
+
+
+                    System.out.println("localScore" + localScore + "Original size:" + queryTerms.size() +"now globalSize:"+globalLength+" now localSize:" + localLength);
+                    List<String> realGlobalQueryTerms = globalQueryTerms.subList(0, globalLength);
+                    List<String> realLocalQueryTerms = localQueryTerms.subList(0, localLength);
+
+                    List<String> realQueryTerms = new ArrayList<String>(localQueryTerms);
+                    realQueryTerms.addAll(globalQueryTerms);
 
 
                     TopDocs hits = null;
