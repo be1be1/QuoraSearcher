@@ -73,15 +73,15 @@ public class QuoraSearchClient {
                     }
 
                     int localLength = (int) Math.round(localQueryTerms.size() * localScore);
-                    int globalLength = (int) Math.round(globalQueryTerms.size() * globalScore);
+                    int globalLength = (int) Math.round(globalQueryTerms.size() * (globalScore+0.2));
 
 
                     System.out.println("localScore" + localScore + "Original size:" + queryTerms.size() +"now globalSize:"+globalLength+" now localSize:" + localLength);
                     List<String> realGlobalQueryTerms = globalQueryTerms.subList(0, globalLength);
                     List<String> realLocalQueryTerms = localQueryTerms.subList(0, localLength);
 
-                    List<String> realQueryTerms = new ArrayList<String>(localQueryTerms);
-                    realQueryTerms.addAll(globalQueryTerms);
+                    List<String> realQueryTerms = new ArrayList<String>(realGlobalQueryTerms);
+                    realQueryTerms.addAll(realLocalQueryTerms);
 
 
                     TopDocs hits = null;
